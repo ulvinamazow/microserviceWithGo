@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,9 +15,35 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
+	"github.org/ulvinamazow/microservice_with_go/app/healthcheck"
 	"github.org/ulvinamazow/microservice_with_go/pkg/config"
 	_ "github.org/ulvinamazow/microservice_with_go/pkg/log"
 )
+
+type Request any
+type Response any
+
+type HandlerInterface[R Request, Res Response] interface {
+	Handle(ctx context.Context, req *R) (*Res, error)
+}
+
+func handle[R Request, Res Response](handler HandlerInterface[R, Res]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var req R
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		res, err := handler.Handle(c.Context(), &req)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		return c.JSON(res)
+	}
+}
 
 func main() {
 
@@ -23,11 +52,16 @@ func main() {
 
 	zap.L().Info("app starting...")
 
-	app := fiber.New()
+	healthchechkHandler := healthcheck.NewHealthCheckHandler()
 
-	app.Get("/healthcheck", func(c *fiber.Ctx) error {
-		return c.SendString("OK")
+	app := fiber.New(fiber.Config{
+		IdleTimeout:  5 * time.Second,
+		ReadTimeout:  3 * time.Second,
+		WriteTimeout: 5 * time.Second,
+		Concurrency:  1024,
 	})
+
+	app.Get("/healthcheck", handle(healthchechkHandler))
 
 	app.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 
@@ -60,4 +94,32 @@ func gracefulShutDown(app *fiber.App) {
 	}
 
 	zap.L().Info("server stopped gracefully")
+}
+
+func Http() {
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	req, er := http.NewRequestWithContext(ctx, http.MethodGet, "https://google.com", nil)
+	if er != nil {
+		zap.L().Error("failed to create HTTP request", zap.Error(er))
+	}
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		zap.L().Error("failed to make HTTP request", zap.Error(err))
+	}
+
+	zap.L().Info("HTTP request successful", zap.Int("status_code", resp.StatusCode))
 }
