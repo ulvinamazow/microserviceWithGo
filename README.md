@@ -98,8 +98,8 @@ It manages users and products, integrates with Kafka for asynchronous event proc
 **1. Clone repository**
 
 ```bash
-git clone https://github.com/your-org/go-microservice.git
-cd go-microservice
+git clone https://github.com/ulvinamazow/microserviceWithGo.git
+cd microserviceWithGo
 ```
 
 **2. Start dependencies**
