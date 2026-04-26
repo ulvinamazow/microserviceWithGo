@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  config.yaml: |
+    port: "8080"
+    mongodb:
+      uri: "mongodb://mongo-service:27017"
+      database: "microservice_db"
+      collection: "products"
+      max_pool_size: 10
+      min_pool_size: 2
+      max_conn_idle_time_seconds: 30
+    kafka:
+      brokers:
+        - "kafka-service:9092"
+      topic: "product-events"
+    auth:
+      jwt_secret: "super-secret-key-change-in-production"
+      jwt_expiration_minutes: 60
+      user_collection: "users"
+    grpc:
+      port: "50051"

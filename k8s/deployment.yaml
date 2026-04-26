@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-microservice
+  labels:
+    app: go-microservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: go-microservice
+  template:
+    metadata:
+      labels:
+        app: go-microservice
+    spec:
+      containers:
+        - name: app
+          image: your-registry/go-microservice:latest  # öz imicinizin adı
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 50051
+              protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config/config.yaml
+              subPath: config.yaml
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config

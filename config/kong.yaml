@@ -1,0 +1,32 @@
+_format_version: "3.0"
+
+# Kong configratin
+
+# ---- Servislər (backend) ----
+services:
+  - name: go-microservice
+    url: http://app:8080        # Docker Compose-da Go servisinin adı
+    routes:
+      - name: health
+        paths:
+          - /healthcheck
+        methods: [GET]
+      - name: products
+        paths:
+          - /products
+        methods: [GET, POST, DELETE]
+      - name: auth
+        paths:
+          - /auth
+        methods: [POST]
+      - name: metrics
+        paths:
+          - /metrics
+        methods: [GET]
+      - name: root
+        paths:
+          - /
+        methods: [GET]
+
+  # Əgər gRPC-ni də Gateway-dən keçirmək istəsək, gRPC route ayrıca konfiqurasiya tələb edir.
+  # Hazırda yalnız HTTP/1.1 REST yönləndiririk.

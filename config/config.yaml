@@ -1,1 +1,22 @@
 port: "8080"
+
+mongodb:
+  uri: "mongodb://admin:root@localhost:17017/mongodb_microservice?authSource=admin"
+  database: "mongodb_microservice"
+  collection: "products"
+  max_pool_size: 10
+  min_pool_size: 2
+  max_conn_idle_time_seconds: 30
+
+kafka:
+  brokers:
+    - "localhost:9092"
+  topic: "product-events"
+
+auth:
+  jwt_secret: "fjbfwwiw38wRXCN79"
+  jwt_expiration_minutes: 60
+  user_collection: "users"
+
+grpc:
+  port: "50051"

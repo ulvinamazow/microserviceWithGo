@@ -8,6 +8,34 @@ import (
 )
 
 type AppConfig struct {
+	Port    string        `yaml:"port"`
+	MongoDB MongoDBConfig `yaml:"mongodb"`
+	Kafka   KafkaConfig   `yaml:"kafka"`
+	Auth    AuthConfig    `yaml:"auth"`
+	GRPC    GRPCConfig    `yaml:"grpc"`
+}
+
+type KafkaConfig struct {
+	Brokers []string `yaml:"brokers"`
+	Topic   string   `yaml:"topic"`
+}
+
+type MongoDBConfig struct {
+	URI                string `yaml:"uri"`
+	Database           string `yaml:"database"`
+	Collection         string `yaml:"collection"`
+	MaxPoolSize        uint64 `yaml:"max_pool_size"`
+	MinPoolSize        uint64 `yaml:"min_pool_size"`
+	MaxConnIdleTimeSec int    `yaml:"max_conn_idle_time_second"`
+}
+
+type AuthConfig struct {
+	JWTSecret        string `yaml:"jwt_secret"`
+	JWTExpirationMin int    `yaml:"jwt_expiration_minutes"`
+	UserCollection   string `yaml:"user_collection"`
+}
+
+type GRPCConfig struct {
 	Port string `yaml:"port"`
 }
 
