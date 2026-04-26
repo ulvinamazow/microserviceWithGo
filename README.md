@@ -31,7 +31,7 @@ It manages users and products, integrates with Kafka for asynchronous event proc
 | Category         | Technology                              |
 |------------------|-----------------------------------------|
 | Language         | Go 1.25+                                |
-| HTTP Framework   | Fiber v2                                |
+| HTTP Framework   | Fiber v2 and v5                         |
 | gRPC             | google.golang.org/grpc                  |
 | Databases        | MongoDB, PostgreSQL (optional)          |
 | Messaging        | Apache Kafka (segmentio/kafka-go)       |
