@@ -198,7 +198,6 @@ Main config file: `config/config.yaml`
 | `auth.jwt_secret`| JWT secret              |
 | `grpc.port`      | gRPC port               |
 
-> ⚠️ **Security Note:** Never commit real secrets. Use environment variables or Kubernetes Secrets.
 
 ---
 
